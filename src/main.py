@@ -1,5 +1,5 @@
 import argparse
-
+from decouple import config
 
 def get_cmd_args():
     """Function used to return command line
@@ -22,3 +22,5 @@ def get_cmd_args():
 if __name__ == "__main__":
     args = get_cmd_args()
     print(args.log)
+
+    
