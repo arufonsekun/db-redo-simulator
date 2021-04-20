@@ -1,5 +1,7 @@
 import argparse
-from decouple import config
+from .parser import *
+from .db_connection import *
+
 
 def get_cmd_args():
     """Function used to return command line
@@ -19,8 +21,11 @@ def get_cmd_args():
     return arguments
 
 
-if __name__ == "__main__":
+def main():
     args = get_cmd_args()
     print(args.log)
+
+if __name__ == "__main__":
+    main()
 
     
