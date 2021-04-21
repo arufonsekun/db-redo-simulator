@@ -35,13 +35,14 @@ def create_table_test(args):
 
     conn.close()
 
+
 def drop_table_test():
     conn = db.connect()
     db.drop_table(conn, "test")
     conn.close()
 
 
-def insert_into():
+def insert_into_test():
     column_value = log_parser.get_columns_names_and_values(args.log)
 
     print("Columns name: {}".format(column_value.keys()))
@@ -56,11 +57,9 @@ def insert_into():
     conn.close()
 
 
-def drop_table():
+def update_table_test():
     conn = db.connect()
-    
-    db.drop_table(conn, "test")
-    
+    db.update(conn, "test", ('A', 'C'), (4, 5))
     conn.close()
 
 
@@ -70,9 +69,9 @@ if __name__ == "__main__":
 
     # parse_table_schema(args)
     # create_table_test(args)
+    # insert_into_test()
     # drop_table_test()
-    # insert_into()
-    drop_table()
+    update_table_test()
 
 
 
