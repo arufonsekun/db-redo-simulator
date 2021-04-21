@@ -106,3 +106,28 @@ def drop_table(conn, table_name):
 
     except (Exception, psycopg2.DatabaseError) as error:
         raise error
+
+def insert(conn, table_name, columns, values):
+    """[summary]
+
+    Args:
+        conn ([type]): [description]
+        table_name (str): [description]
+        columns ([type]): [description]
+        values ([type]): [description]
+
+    Raises:
+        error: [description]
+    """
+    insert = "INSERT INTO {0} {1} VALUES {2};"
+    insert = insert.format(table_name, columns, values)
+    insert = insert.replace("'", "") 
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(insert)
+        cursor.close()
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise error 
