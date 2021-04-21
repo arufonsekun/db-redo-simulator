@@ -1,5 +1,5 @@
 import argparse
-from ..src import db_connection
+from ..src import db
 from ..src import parser as log_parser
 
 
@@ -26,18 +26,43 @@ def parse_table_schema(args):
     print("Columns name: {}".format(column_value.keys()))
     print("Columns values: {}".format(column_value.values()))
 
+
 def create_table_test(args):
-    conn = db_connection.connect()
+    conn = db.connect()
 
     column_value = log_parser.get_columns_names_and_values(args.log)
-    db_connection.create_table(conn, "test", column_value.keys())
+    db.create_table(conn, "test", column_value.keys())
 
     conn.close()
 
 def drop_table_test():
-    conn = db_connection.connect()
-    db_connection.drop_table(conn, "test")
+    conn = db.connect()
+    db.drop_table(conn, "test")
     conn.close()
+
+
+def insert_into():
+    column_value = log_parser.get_columns_names_and_values(args.log)
+
+    print("Columns name: {}".format(column_value.keys()))
+    print("Columns values: {}".format(column_value.values()))
+    
+    conn = db.connect()
+    
+    columns = column_value.keys()
+    values = column_value.values()
+    db.insert(conn, "test", tuple(columns), tuple(values))
+    
+    conn.close()
+
+
+def drop_table():
+    conn = db.connect()
+    
+    db.drop_table(conn, "test")
+    
+    conn.close()
+
 
 if __name__ == "__main__":
     args = get_cmd_args()
@@ -45,8 +70,10 @@ if __name__ == "__main__":
 
     # parse_table_schema(args)
     # create_table_test(args)
+    # drop_table_test()
+    # insert_into()
+    drop_table()
 
-    drop_table_test()
 
 
     

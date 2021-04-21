@@ -1,6 +1,6 @@
 import argparse
 from .parser import *
-from .db_connection import *
+from .db import *
 
 
 def get_cmd_args():
