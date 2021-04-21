@@ -51,7 +51,7 @@ def close(conn):
     conn.close()
 
 
-def create_table(conn, table_name, columns):
+def create(conn, table_name, columns):
     """Create a database table given a name
     and a list of columns names, columns types
     are by default integers.    
@@ -85,7 +85,7 @@ def create_table(conn, table_name, columns):
         raise error
 
 
-def drop_table(conn, table_name):
+def drop(conn, table_name):
     """[summary]
 
     Args:

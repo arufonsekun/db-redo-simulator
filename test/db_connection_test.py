@@ -31,14 +31,14 @@ def create_table_test(args):
     conn = db.connect()
 
     column_value = log_parser.get_columns_names_and_values(args.log)
-    db.create_table(conn, "test", column_value.keys())
+    db.create(conn, "test", column_value.keys())
 
     conn.close()
 
 
 def drop_table_test():
     conn = db.connect()
-    db.drop_table(conn, "test")
+    db.drop(conn, "test")
     conn.close()
 
 

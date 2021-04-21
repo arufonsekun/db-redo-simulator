@@ -1,4 +1,4 @@
-def get_columns_names_and_values(log_file):
+def get_columns_names_and_values(log):
     """Parse the first line of the given
     log file, extracting column name and
     respective value.
@@ -10,9 +10,7 @@ def get_columns_names_and_values(log_file):
         dict[str:str]: python dictionary
         following the format → column_name : value
     """
-    log = open(log_file, "r")
     table_schema = log.readline()
-    log.close()
 
     raw_column_value = table_schema.split("|")
 
