@@ -64,11 +64,11 @@ def create_table(conn, table_name, columns):
     Returns:
         [type]: [description]
     """
-    create =  "CREATE TABLE {0} (\n"
+    create =  "CREATE TABLE {0} (\n\tid SERIAL,\n"
     create = create.format(table_name)
 
     for column in columns:
-        create += ("\t{} integer,\n").format(column)
+        create += ("\t{} INTEGER,\n").format(column)
     
     create = create[:-2]
     create += ");"
@@ -121,7 +121,7 @@ def insert(conn, table_name, columns, values):
     """
     insert = "INSERT INTO {0} {1} VALUES {2};"
     insert = insert.format(table_name, columns, values)
-    insert = insert.replace("'", "") 
+    insert = insert.replace("'", "")
 
     try:
         cursor = conn.cursor()
@@ -130,4 +130,37 @@ def insert(conn, table_name, columns, values):
         conn.commit()
 
     except (Exception, psycopg2.DatabaseError) as error:
-        raise error 
+        raise error
+
+
+def update(conn, table_name, columns, values):
+    """[summary]
+
+    Args:
+        conn ([type]): [description]
+        table_name ([type]): [description]
+        columns ([type]): [description]
+        values ([type]): [description]
+
+    Raises:
+        error: [description]
+    """
+    update =  "UPDATE {0} SET "
+    update = update.format(table_name)
+
+    for column, value in zip(columns, values):
+        update += ("{} = {}, ").format(column, value)
+    
+    update = update[:-2]
+    update += " WHERE id=1;"
+    print(update)
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute(update)
+        cursor.close()
+        conn.commit()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise error
+
