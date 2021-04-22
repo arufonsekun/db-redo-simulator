@@ -20,7 +20,7 @@ def get_cmd_args():
     return arguments
 
 
-def test_tokenizer(args):
+def test_transaction_classifier(args):
     log_file = args.log
     try:
         with open(log_file, "r") as log:
@@ -41,4 +41,4 @@ if __name__ == "__main__":
     args = get_cmd_args()
     print("Log file path: {}".format(args.log))
     
-    test_tokenizer(args)
+    test_transaction_classifier(args)

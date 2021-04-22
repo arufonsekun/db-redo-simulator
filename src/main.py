@@ -17,7 +17,11 @@ def get_cmd_args():
     parser = argparse.ArgumentParser(description="Database redo simulator")
     parser.add_argument(
             "--log", type=str, dest="log",
-            help="Database log file")
+            help="Database redo simulator.")
+
+    parser.add_argument(
+            "--drop", type=bool, dest="drop", nargs='?', const=True,
+            help="Should or not drop table after running.")
 
     arguments = parser.parse_args()
 
@@ -52,20 +56,24 @@ def redo_update(conn, transactions):
         if transaction.commited and transaction.is_in_checkpoint:
             db.update(conn, TABLE_NAME, columns, values)
             print("Transação {} não realizou redo".format(transaction.name))
-            print("Atualizando coluna(s) {} para os valores {} respectivamente.".format(", ".join(columns), ", ".join(values)))
 
         elif transaction.commited and not transaction.is_in_checkpoint:
             db.update(conn, TABLE_NAME, columns, values)
             print("Transação {} realizou redo".format(transaction.name))
-            print("Redo realizado, coluna(s) {} atualizadas para {} respectivamente.".format(", ".join(columns), ", ".join(values)))
 
         else:
             print("Transação {} foi perdida ;(".format(transaction.name))
 
 
+def show_updated_values(conn):
+    current_values = db.select(conn, TABLE_NAME)
+    print(current_values)
+
+
 def main():
     args = get_cmd_args()
     log_file = args.log
+    must_drop_table = args.drop
 
     try:
         with open(log_file, "r") as log:
@@ -75,10 +83,16 @@ def main():
 
             transactions = parser.classify_transactions(log)
             redo_update(conn, transactions)
+            show_updated_values(conn)
 
-    except (Exception, error):
+            if must_drop_table:
+                drop_table(conn)
+
+            conn.close()
+
+    except:
         conn.close()
-        raise error
+        raise
 
     
 if __name__ == "__main__":
