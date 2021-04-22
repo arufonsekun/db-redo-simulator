@@ -99,6 +99,40 @@ def transaction_already_exists(transactions, t_name):
     return t_name in transactions.keys()
 
 
+def tokenizer(log):
+    """Gets a log file and converts each
+    transaction in the format <T1, 1, A, 10>
+    into an object.
+
+    Args:
+        log (file): Log file
+
+    Returns:
+        dict: Dictionary of transactions name
+        and object.
+    """
+    transactions = {}
+    log_lines = [l.rstrip() for l in log.readlines()[1:]]
+    
+    for line in log_lines:
+        instruction = get_inst_content(line)
+        tokens = get_tokens(instruction)
+        
+        if is_update(tokens):
+            transaction_name = tokens[0]
+            tuple_id = tokens[1]
+            column = tokens[2]
+            value = tokens[3]
+        
+            if transaction_already_exists(transactions, transaction_name):
+                transactions[transaction_name].add_new_tuple(tuple_id, column, value)
+
+            else:
+                transaction = Transaction(transaction_name, tuple_id, column, value)
+                transactions[transaction_name] = transaction
+
+    return transactions
+
 def classify_transactions(log):
     
     transactions = {}
@@ -120,6 +154,8 @@ def classify_transactions(log):
             else:
                 transaction = Transaction(transaction_name, tuple_id, column, value)
                 transactions[transaction_name] = transaction
+
+
 
 
     return transactions
