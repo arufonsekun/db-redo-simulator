@@ -153,27 +153,23 @@ def set_transactions_inside_checkpoint(transactions):
         transactions (dict): transactions
     """
     for t_name, transaction in transactions.items():
-        transactions[t_name].is_inside_checkpoint(True)
-
-
-def get_uncommited_transactions(tokens):
-    """[summary]
-
-    Args:
-        tokens ([type]): [description]
-
-    Returns:
-        [type]: [description]
-    """
-    uncommited = re.compile("\((.*)\)").search(tokens[1]).group(1)
-    return uncommited.split(",")
+        if transactions[t_name].commited:
+            transactions[t_name].is_inside_checkpoint(True)
 
 
 def classify_transactions(log):
-    
+    """Tokenizes log file instructions
+    and checks if each transaction is
+    commited or inside checkpoint.
+
+    Args:
+        log (TextIOWrapper): log file.
+
+    Returns:
+        dict: Dictionary of transactions
+    """
     transactions = {}
     log_lines = [l.rstrip() for l in log.readlines()[1:]]
-    is_inside_checkpoint = False
 
     for line in log_lines:
         instruction = get_inst_content(line)
@@ -187,25 +183,22 @@ def classify_transactions(log):
         
             if transaction_already_exists(transactions, transaction_name):
                 transactions[transaction_name].add_new_tuple(tuple_id, column, value)
-                transactions[transaction_name].is_inside_checkpoint(is_inside_checkpoint)
 
             else:
-                transaction = Transaction(transaction_name, tuple_id, column, value, is_inside_checkpoint)
+                transaction = Transaction(transaction_name, tuple_id, column, value)
                 transactions[transaction_name] = transaction
 
         elif is_commit(tokens):
             t_name = tokens[1]
             transactions[t_name].commit()
 
+        # TODO: check if it's make sense
         elif is_start_checkpoint(tokens):
             is_inside_checkpoint = True
-            uncommited_transactions = get_uncommited_transactions(tokens)
-            set_transactions_inside_checkpoint(transactions)
-            # print(uncommited_transactions)
 
         elif is_end_checkpoint(tokens):
+            set_transactions_inside_checkpoint(transactions)
             is_inside_checkpoint = False
-            # print(uncommited_transactions)
 
     return transactions
 
