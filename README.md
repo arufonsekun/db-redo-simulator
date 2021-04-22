@@ -25,7 +25,7 @@ port=5432
 
 ### Running
 
-Run the following command in `db-redo-simulator` root directory.
+Run the following command in `db-redo-simulator` root directory, check `/log` directory for log sample files.
 
 ```bash
 python -m db-redo-simulator.src.main --log=db-redo-simulator/log/<log-file>
