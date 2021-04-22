@@ -25,16 +25,13 @@ def test_tokenizer(args):
     try:
         with open(log_file, "r") as log:
             
-            t = log_parser.tokenize(log)
+            t = log_parser.classify_transactions(log)
 
             for t_name, t_value in t.items():
                 print("------------------------------------")
                 print("Transaction name {}".format(t_name))
-                print("Transaction tuple_id {}".format(t_value.tuples_id))
-                print("Transaction values {}".format(t_value.values))
-                print("Transaction columns {}".format(t_value.columns))
                 print("Transaction is commited {}".format(t_value.commited))
-                print("Transaction is succeeded by CHK_P{}".format(t_value.is_in_checkpoint))
+                print("Transaction is in checkpoint {}".format(t_value.is_in_checkpoint))
 
     except (Exception, error):
         raise error
