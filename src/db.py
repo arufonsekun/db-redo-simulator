@@ -2,8 +2,9 @@ import psycopg2
 from configparser import ConfigParser
 
 
-def get_db_config(db_config_file="db-redo-simulator/database.ini",  section="postgres"):
-    """[summary]
+def get_db_config(db_config_file="db-redo-simulator/database.ini",
+    section="postgres"):
+    """Get user database configurations. 
 
     Args:
         db_config_file (str, optional): [description]. 
@@ -14,7 +15,7 @@ def get_db_config(db_config_file="db-redo-simulator/database.ini",  section="pos
         Exception: [description]
 
     Returns:
-        [type]: [description]
+        dict: database settings.
     """
     parser = ConfigParser()
     parser.read(db_config_file)
@@ -33,20 +34,20 @@ def get_db_config(db_config_file="db-redo-simulator/database.ini",  section="pos
 
 
 def connect():
-    """[summary]
+    """Create a new db connection.
 
     Returns:
-        [type]: [description]
+        connection: database connection
     """
     db_config = get_db_config()
     return psycopg2.connect(**db_config)
 
 
 def close(conn):
-    """[summary]
+    """Close database connection
 
     Args:
-        conn ([type]): [description]
+        conn (connection): Database connection.
     """
     conn.close()
 
@@ -85,14 +86,14 @@ def create(conn, table_name, columns):
 
 
 def drop(conn, table_name):
-    """[summary]
+    """Drop db table.
 
     Args:
-        conn ([type]): [description]
-        table_name ([type]): [description]
+        conn (connection): db connection.
+        table_name (string): table name.
 
     Raises:
-        error: [description]
+        error: SQL error.
     """
     drop = "DROP TABLE {};".format(table_name)
 
@@ -107,16 +108,16 @@ def drop(conn, table_name):
         raise error
 
 def insert(conn, table_name, columns, values):
-    """[summary]
+    """Insert data into table_name.
 
     Args:
-        conn ([type]): [description]
-        table_name (str): [description]
-        columns ([type]): [description]
-        values ([type]): [description]
+        conn (connection): active database connection.
+        table_name (str): table name.
+        columns (tuple): columns to be modified.
+        values (tuple): columns values.
 
     Raises:
-        error: [description]
+        error: SQl error.
     """
     insert = "INSERT INTO {0} {1} VALUES {2};"
     insert = insert.format(table_name, columns, values)
@@ -133,13 +134,13 @@ def insert(conn, table_name, columns, values):
 
 
 def update(conn, table_name, columns, values):
-    """[summary]
+    """Updates table_name data.
 
     Args:
-        conn ([type]): [description]
-        table_name ([type]): [description]
-        columns ([type]): [description]
-        values ([type]): [description]
+        conn (connection): database active connection.
+        table_name (str): table where data will be inserterd. 
+        columns (tuple): columns names
+        values (tuple): new columns values.
 
     Raises:
         error: [description]
@@ -162,3 +163,29 @@ def update(conn, table_name, columns, values):
     except (Exception, psycopg2.DatabaseError) as error:
         raise error
 
+def select(conn, table_name, id=1):
+    """Select data from table_name
+    where id is equal to 1.
+
+    Args:
+        conn (connection): database active connection.
+        table_name (str): [description]
+        id (int, optional): Tuple id where data will be
+        retrieved. Defaults to 1.
+
+    Raises:
+        error: SQL error
+
+    Returns:
+        [type]: [description]
+    """
+    select = "SELECT * from {0} WHERE id = {1};".format(table_name, id)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(select)
+        result = cursor.fetchall()
+        cursor.close()
+        return result
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        raise error
