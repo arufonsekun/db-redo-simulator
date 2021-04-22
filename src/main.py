@@ -2,6 +2,7 @@ import argparse
 from . import parser
 from . import db
 
+
 TABLE_NAME = "redo_simulator"
 
 
@@ -40,20 +41,49 @@ def drop_table(conn):
     db.drop(TABLE_NAME)
 
 
+def redo(conn, transactions):
+    
+    for transaction in transactions.values():
+        
+        print("------------------------------------")
+        print("Transaction name {}".format(transaction.name))
+        print("Transaction is commited {}".format(transaction.commited))
+        print("Transaction is in checkpoint {}".format(transaction.is_in_checkpoint))
+
+        columns = tuple(transaction.updates.keys())
+        values = tuple(transaction.updates.values())
+
+        if transaction.commited and transaction.is_in_checkpoint:
+            print(columns)
+            print(values)
+            db.update(conn, TABLE_NAME, columns, values)
+            print("Transação {} não realizou redo".format(transaction.name))
+
+        elif transaction.commited and not transaction.is_in_checkpoint:
+            print(columns)
+            print(values)
+            db.update(conn, TABLE_NAME, columns, values)
+            print("Transação {} realizou redo".format(transaction.name))
+
+        else:
+            print("Transação {} foi perdida ;(".format(transaction.name))
+
+
 def main():
     args = get_cmd_args()
     log_file = args.log
 
     try:
         with open(log_file, "r") as log:
-            
-            # columns_values = parser.get_columns_names_and_values(log)
-            # create_table(conn, columns_values)
+            conn = db.connect()
+            columns_values = parser.get_columns_names_and_values(log)
+            create_table(conn, columns_values)
 
-            parser.classify_transactions(log)
-
+            transactions = parser.classify_transactions(log)
+            redo(conn, transactions)
 
     except (Exception, error):
+        conn.close()
         raise error
 
     
