@@ -50,7 +50,7 @@ def get_inst_content(line):
 
 
 def get_tokens(instruction):
-    """Given an instruction, `get_tokens` generates
+    """Given an instruction, generates
     tokens for it.
 
     Example: 
@@ -107,10 +107,11 @@ def is_start_checkpoint(tokens):
     tokens is start of a checkpoint.
 
     Args:
-        tokens ([type]): [description]
+        tokens (list): list of tokens
 
     Returns:
-        boolean: is checkpoint start?
+        boolean: whether tokens is checkpoint
+        start or not.
     """
     is_start = tokens[0].lower() == START
     is_checkpoint = tokens[1].lower().find(CHECKPOINT) >= 0
@@ -192,48 +193,7 @@ def classify_transactions(log):
             t_name = tokens[1]
             transactions[t_name].commit()
 
-        # TODO: check if it's make sense
-        elif is_start_checkpoint(tokens):
-            is_inside_checkpoint = True
-
         elif is_end_checkpoint(tokens):
             set_transactions_inside_checkpoint(transactions)
-            is_inside_checkpoint = False
-
-    return transactions
-
-
-def tokenizer(log):
-    """Gets a log file and converts each
-    transaction in the format <T1, 1, A, 10>
-    into an object. This method is just used
-    for testing.
-
-    Args:
-        log (file): Log file
-
-    Returns:
-        dict: Dictionary associating transactions name
-        and object.
-    """
-    transactions = {}
-    log_lines = [l.rstrip() for l in log.readlines()[1:]]
-    
-    for line in log_lines:
-        instruction = get_inst_content(line)
-        tokens = get_tokens(instruction)
-        
-        if is_update(tokens):
-            transaction_name = tokens[0]
-            tuple_id = tokens[1]
-            column = tokens[2]
-            value = tokens[3]
-        
-            if transaction_already_exists(transactions, transaction_name):
-                transactions[transaction_name].add_new_tuple(tuple_id, column, value)
-
-            else:
-                transaction = Transaction(transaction_name, tuple_id, column, value)
-                transactions[transaction_name] = transaction
 
     return transactions
