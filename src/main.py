@@ -42,7 +42,7 @@ def drop_table(conn):
     Args:
         conn (connection): Postgres object connection
     """
-    db.drop(TABLE_NAME)
+    db.drop(conn, TABLE_NAME)
 
 
 def redo_update(conn, transactions):
@@ -65,10 +65,17 @@ def redo_update(conn, transactions):
             print("Transação {} foi perdida ;(".format(transaction.name))
 
 
-def show_updated_values(conn):
-    current_values = db.select(conn, TABLE_NAME)
-    print(current_values)
-
+def show_updated_values(conn, columns):
+    values = db.select(conn, TABLE_NAME)[0]
+    
+    print()
+    for c in columns:
+        print("{}".format(c.rjust(3)), end="")
+    print()
+    for v in values[1:]:
+        print("{}".format(str(v).rjust(3)), end="")
+    print()
+    print()
 
 def main():
     args = get_cmd_args()
@@ -83,8 +90,9 @@ def main():
 
             transactions = parser.classify_transactions(log)
             redo_update(conn, transactions)
-            show_updated_values(conn)
 
+            show_updated_values(conn, columns_values.keys())
+            
             if must_drop_table:
                 drop_table(conn)
 
