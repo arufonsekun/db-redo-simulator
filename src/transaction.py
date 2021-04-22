@@ -1,17 +1,24 @@
 class Transaction:
 
-    def __init__(self, name, tuple_id, column, value,
-            commited=False, is_succeeded_by_checkpoint=False):
+    def __init__(self, name, tuple_id, column, value, is_in_checkpoint):
 
         self.name = name
-        self.tuple_id = [tuple_id]
+        self.tuples_id = [tuple_id]
         self.columns = [column]
         self.values = [value]
-        self.commited = commited
-        self.is_succeeded_by_checkpoint = is_succeeded_by_checkpoint
+        self.commited = False
+        self.is_in_checkpoint = is_in_checkpoint
 
 
     def add_new_tuple(self, tuple_id, column, value):
-        self.tuple_id.append(tuple_id)
+        self.tuples_id.append(tuple_id)
         self.columns.append(column)
         self.values.append(value)
+
+
+    def commit(self):
+        self.commited = True
+
+
+    def is_inside_checkpoint(self, is_in):
+        self.is_in_checkpoint = is_in

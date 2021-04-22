@@ -3,6 +3,9 @@ from .transaction import Transaction
 
 
 UPDATE = 4
+COMMIT = "commit"
+CHECKPOINT = "ckpt"
+START = "start"
 
 
 def get_columns_names_and_values(log):
@@ -80,11 +83,55 @@ def is_update(tokens):
         tokens (list(str)): list of tokens.
 
     Returns:
-        bool: whether or not the given token is representing
+        boolean: whether or not the given token is representing
         an update instruction.
     """
     return len(tokens) == UPDATE
 
+
+def is_commit(tokens):
+    """Returns whether a list of tokens
+    are a commit. 
+
+    Args:
+        tokens (list): list of tokens
+
+    Returns:
+        boolean: list of token is a commit
+    """
+    return tokens[0].lower() == COMMIT
+
+
+def is_start_checkpoint(tokens):
+    """Verifies if a given list of
+    tokens is start of a checkpoint.
+
+    Args:
+        tokens ([type]): [description]
+
+    Returns:
+        boolean: is checkpoint start?
+    """
+    is_start = tokens[0].lower() == START
+    is_checkpoint = tokens[1].lower().find(CHECKPOINT) >= 0
+
+    return is_start and is_checkpoint
+
+
+def is_end_checkpoint(tokens):
+    """Verifies if a given list of
+    tokens is end of a checkpoint.
+
+    Args:
+        tokens ([type]): [description]
+
+    Returns:
+        boolean: is checkpoint end?
+    """
+    is_end = not (tokens[0].lower() == START)
+    is_checkpoint = tokens[1].lower().find(CHECKPOINT) >= 0
+
+    return is_end and is_checkpoint
 
 def transaction_already_exists(transactions, t_name):
     """Check if the transaction was previously created.
@@ -94,21 +141,86 @@ def transaction_already_exists(transactions, t_name):
         t_name (str): transaction name.
 
     Returns:
-        bool: check if the transaction was already created.
+        boolean: check if the transaction was already created.
     """
     return t_name in transactions.keys()
+
+
+def set_transactions_inside_checkpoint(transactions):
+    """Set each transaction as "inside" checkpoint.
+
+    Args:
+        transactions (dict): transactions
+    """
+    for t_name, transaction in transactions.items():
+        transactions[t_name].is_inside_checkpoint(True)
+
+
+def get_uncommited_transactions(tokens):
+    """[summary]
+
+    Args:
+        tokens ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    uncommited = re.compile("\((.*)\)").search(tokens[1]).group(1)
+    return uncommited.split(",")
+
+
+def classify_transactions(log):
+    
+    transactions = {}
+    log_lines = [l.rstrip() for l in log.readlines()[1:]]
+    is_inside_checkpoint = False
+
+    for line in log_lines:
+        instruction = get_inst_content(line)
+        tokens = get_tokens(instruction)
+        
+        if is_update(tokens):
+            transaction_name = tokens[0]
+            tuple_id = tokens[1]
+            column = tokens[2]
+            value = tokens[3]
+        
+            if transaction_already_exists(transactions, transaction_name):
+                transactions[transaction_name].add_new_tuple(tuple_id, column, value)
+                transactions[transaction_name].is_inside_checkpoint(is_inside_checkpoint)
+
+            else:
+                transaction = Transaction(transaction_name, tuple_id, column, value, is_inside_checkpoint)
+                transactions[transaction_name] = transaction
+
+        elif is_commit(tokens):
+            t_name = tokens[1]
+            transactions[t_name].commit()
+
+        elif is_start_checkpoint(tokens):
+            is_inside_checkpoint = True
+            uncommited_transactions = get_uncommited_transactions(tokens)
+            set_transactions_inside_checkpoint(transactions)
+            # print(uncommited_transactions)
+
+        elif is_end_checkpoint(tokens):
+            is_inside_checkpoint = False
+            # print(uncommited_transactions)
+
+    return transactions
 
 
 def tokenizer(log):
     """Gets a log file and converts each
     transaction in the format <T1, 1, A, 10>
-    into an object.
+    into an object. This method is just used
+    for testing.
 
     Args:
         log (file): Log file
 
     Returns:
-        dict: Dictionary of transactions name
+        dict: Dictionary associating transactions name
         and object.
     """
     transactions = {}
@@ -130,32 +242,5 @@ def tokenizer(log):
             else:
                 transaction = Transaction(transaction_name, tuple_id, column, value)
                 transactions[transaction_name] = transaction
-
-    return transactions
-
-def classify_transactions(log):
-    
-    transactions = {}
-    log_lines = [l.rstrip() for l in log.readlines()[1:]]
-    
-    for line in log_lines:
-        instruction = get_inst_content(line)
-        tokens = get_tokens(instruction)
-        
-        if is_update(tokens):
-            transaction_name = tokens[0]
-            tuple_id = tokens[1]
-            column = tokens[2]
-            value = tokens[3]
-        
-            if transaction_already_exists(transactions, transaction_name):
-                transactions[transaction_name].add_new_tuple(tuple_id, column, value)
-
-            else:
-                transaction = Transaction(transaction_name, tuple_id, column, value)
-                transactions[transaction_name] = transaction
-
-
-
 
     return transactions

@@ -43,25 +43,17 @@ def drop_table(conn):
 def main():
     args = get_cmd_args()
     log_file = args.log
-    conn = db.connect()
 
     try:
         with open(log_file, "r") as log:
-            t = parser.classify_transactions(log)
+            
+            # columns_values = parser.get_columns_names_and_values(log)
+            # create_table(conn, columns_values)
 
-            for t_name, t_value in t.items():
-                print("------------------------------------")
-                print("Transaction name {}".format(t_name))
-                print("Transaction tuple_id {}".format(t_value.tuple_id))
-                print("Transaction values {}".format(t_value.values))
-                print("Transaction columns {}".format(t_value.columns))
-                print("Transaction is commited {}".format(t_value.commited))
-                print("Transaction is succeeded by CHK_P{}".format(t_value.is_succeeded_by_checkpoint))
+            parser.classify_transactions(log)
 
-            db.close(conn)
 
     except (Exception, error):
-        conn.close()
         raise error
 
     
