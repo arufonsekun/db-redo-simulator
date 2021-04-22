@@ -78,7 +78,6 @@ def create(conn, table_name, columns):
         cursor.execute(create)
         cursor.close()
         conn.commit()
-        print("Table created sucessfuly")
 
     except (Exception, psycopg2.DatabaseError) as error:
         conn.close()
@@ -153,7 +152,6 @@ def update(conn, table_name, columns, values):
     
     update = update[:-2]
     update += " WHERE id=1;"
-    print(update)
 
     try:
         cursor = conn.cursor()

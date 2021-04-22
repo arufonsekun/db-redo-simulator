@@ -41,29 +41,23 @@ def drop_table(conn):
     db.drop(TABLE_NAME)
 
 
-def redo(conn, transactions):
+def redo_update(conn, transactions):
     
     for transaction in transactions.values():
         
-        print("------------------------------------")
-        print("Transaction name {}".format(transaction.name))
-        print("Transaction is commited {}".format(transaction.commited))
-        print("Transaction is in checkpoint {}".format(transaction.is_in_checkpoint))
-
         columns = tuple(transaction.updates.keys())
         values = tuple(transaction.updates.values())
+        print(" ")
 
         if transaction.commited and transaction.is_in_checkpoint:
-            print(columns)
-            print(values)
             db.update(conn, TABLE_NAME, columns, values)
             print("Transação {} não realizou redo".format(transaction.name))
+            print("Atualizando coluna(s) {} para os valores {} respectivamente.".format(", ".join(columns), ", ".join(values)))
 
         elif transaction.commited and not transaction.is_in_checkpoint:
-            print(columns)
-            print(values)
             db.update(conn, TABLE_NAME, columns, values)
             print("Transação {} realizou redo".format(transaction.name))
+            print("Redo realizado, coluna(s) {} atualizadas para {} respectivamente.".format(", ".join(columns), ", ".join(values)))
 
         else:
             print("Transação {} foi perdida ;(".format(transaction.name))
@@ -80,7 +74,7 @@ def main():
             create_table(conn, columns_values)
 
             transactions = parser.classify_transactions(log)
-            redo(conn, transactions)
+            redo_update(conn, transactions)
 
     except (Exception, error):
         conn.close()
