@@ -180,12 +180,11 @@ def select(conn, table_name, id=1):
         [type]: [description]
     """
     select = "SELECT * from {0} WHERE id = {1};".format(table_name, id)
-    try:
-        cursor = conn.cursor()
-        cursor.execute(select)
-        result = cursor.fetchall()
-        cursor.close()
-        return result
 
-    except (Exception, psycopg2.DatabaseError) as error:
-        raise error
+    cursor = conn.cursor()
+    cursor.execute(select)
+    result = cursor.fetchall()
+    cursor.close()
+
+    return result
+

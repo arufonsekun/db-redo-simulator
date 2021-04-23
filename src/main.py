@@ -78,6 +78,8 @@ def show_updated_values(conn, columns):
     print()
 
 def main():
+    # Rodar esse comando na raiz de db-redo-simulator
+    # python -m db-redo-simulator.src.main --log=db-redo-simulator/log/teste_final
     args = get_cmd_args()
     log_file = args.log
     must_drop_table = args.drop

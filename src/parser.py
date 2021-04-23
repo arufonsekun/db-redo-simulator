@@ -17,7 +17,7 @@ def get_columns_names_and_values(log):
         log_file (str): path to log file
 
     Returns:
-        dict[str:str]: python dictionary
+        dict(str:str): python dictionary
         following the format → column_name : value
     """
     table_schema = log.readline()
